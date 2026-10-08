@@ -40,7 +40,7 @@ export function AuditLog() {
     const esc = (v: unknown) => {
       const str = String(v ?? '')
       // Neutralise spreadsheet formula injection (=, +, -, @, tab, CR).
-      const safe = /^[=+\-@\t\r]/.test(str) ? `'${str}` : str
+      const safe = /^\s*[=+\-@\t\r]/.test(str) ? `'${str}` : str
       return `"${safe.replace(/"/g, '""')}"`
     }
     const lines = rows.map((e) =>
