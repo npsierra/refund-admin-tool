@@ -42,7 +42,7 @@ Other scripts:
 1. **Settings → Reset demo data** so the dataset is fresh.
 2. **Dashboard** as Priya (Analyst): pipeline by stage, unassigned count.
 3. **Queue** (already filtered to "Assigned to me") → open a *Queued* case → **Assign to me** → **Start review** → try to approve an amount over $250 → blocked by the Analyst limit.
-4. **Settings → Switch to David (Admin)** → under *Roles & policy* raise the Analyst limit to **$500** → **Save policy**. Open **Audit Log**: a `policy.updated` row shows *Analyst limit $250.00 → $500.00*.
+4. **Settings → Switch to David (Admin)** → under *Roles & approval policy* raise the Analyst limit to **$500** → **Save policy**. Open **Audit Log**: a `policy.updated` row shows *Analyst limit $250.00 → $500.00*.
 5. **Switch back to Priya** → the same approval now succeeds.
 6. Open a case **≥ $1,000** as Elena (Supervisor) → **Approve** → status becomes *Needs 2nd Approval*. Elena cannot countersign her own approval; **switch to David** → **Countersign** → **Execute** → settles with a processor reference.
 7. **Dashboard** as Elena shows "awaiting your countersign"; **Audit Log → Export CSV**.
@@ -57,7 +57,7 @@ Other scripts:
 
 Two-person rule: any approval ≥ $1,000 needs a countersignature from a *different* Supervisor or Admin. The role limit applies to the first approval only.
 
-**Configurable policy:** an Admin can change the Analyst limit, Supervisor limit, and two-person threshold in **Settings → Roles & policy**. Changes take effect immediately for every open case and are written to the audit log (who, from → to). Defaults live in `src/lib/policy.ts`; edits are kept in `localStorage` until **Reset demo data**.
+**Configurable policy:** an Admin can change the Analyst limit, Supervisor limit, and two-person threshold in **Settings → Roles & approval policy**. Changes take effect immediately for every open case and are written to the audit log (who, from → to). Defaults live in `src/lib/policy.ts`; edits are kept in `localStorage` until **Reset demo data**.
 
 ## Connecting real data
 
