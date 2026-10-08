@@ -175,7 +175,8 @@ export const useStore = create<State & Actions>()(
           if (prev.twoPersonThreshold !== twoPersonThreshold) changes.push(`Two-person threshold ${money(prev.twoPersonThreshold)} → ${money(twoPersonThreshold)}`)
           if (changes.length === 0) return { ok: false, error: 'No changes' }
           set({ policy: next })
-          log({ action: 'policy.updated', reason: changes.join('; '), before: JSON.stringify({ ...prev.approvalLimits, admin: 'unlimited', twoPersonThreshold: prev.twoPersonThreshold }), after: JSON.stringify({ ...next.approvalLimits, admin: 'unlimited', twoPersonThreshold }) })
+          const summary = (p: Policy) => `Analyst ${money(p.approvalLimits.analyst)} · Supervisor ${money(p.approvalLimits.supervisor)} · Two-person ${money(p.twoPersonThreshold)}`
+          log({ action: 'policy.updated', reason: changes.join('; '), before: summary(prev), after: summary(next) })
           return { ok: true }
         },
 
