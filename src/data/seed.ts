@@ -131,7 +131,7 @@ export interface SeedData {
   audit: AuditEntry[]
 }
 
-export function generateSeed(now = new Date('2026-10-08T15:00:00Z')): SeedData {
+export function generateSeed(now = new Date()): SeedData {
   const rand = mulberry32(20261008)
   const pick = <T,>(arr: T[]): T => arr[Math.floor(rand() * arr.length)]
   const int = (min: number, max: number) => Math.floor(rand() * (max - min + 1)) + min
@@ -228,7 +228,7 @@ export function generateSeed(now = new Date('2026-10-08T15:00:00Z')): SeedData {
     if (rand() < 0.08) flags.push('velocity')
 
     const isTerminal = ['completed', 'rejected', 'failed', 'executing', 'approved'].includes(status)
-    const createdDaysAgo = isTerminal ? int(3, 40) : int(0, 6)
+    const createdDaysAgo = isTerminal ? int(3, 40) : int(0, 3)
     const createdAt = daysAgo(createdDaysAgo, 20)
     const priority: RefundRequest['priority'] =
       trigger === 'chargeback' || flags.includes('high_value') ? 'high' : rand() < 0.2 ? 'low' : 'normal'
