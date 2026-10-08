@@ -8,7 +8,9 @@ Everything runs in the browser with synthetic data — no backend, database, or 
 
 ## Run it
 
-Requires [Node.js](https://nodejs.org) 20 or newer.
+Requires [Node.js](https://nodejs.org) 20 or newer (`node -v` to check). Nothing else: no accounts, API keys, or environment variables.
+
+Open a terminal in the folder where you want the project, then:
 
 ```bash
 git clone https://github.com/npsierra/refund-admin-tool.git
@@ -17,7 +19,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173.
+Open http://localhost:5173 in your browser. Stop the server with `Ctrl+C`.
 
 Other scripts:
 
