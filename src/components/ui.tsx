@@ -95,6 +95,18 @@ const STATUS_STYLES: Record<RefundStatus, string> = {
   failed: 'bg-red-50 text-red-700 ring-red-200',
 }
 
+// Solid fill matching each status pill, for charts/bars.
+export const STATUS_BAR: Record<RefundStatus, string> = {
+  queued: 'bg-stone-400',
+  in_review: 'bg-sky-500',
+  pending_second_approval: 'bg-amber-400',
+  approved: 'bg-brand-400',
+  rejected: 'bg-rose-400',
+  executing: 'bg-teal-500',
+  completed: 'bg-brand-700',
+  failed: 'bg-red-500',
+}
+
 export function StatusBadge({ status }: { status: RefundStatus }) {
   return (
     <span className={clsx('inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset', STATUS_STYLES[status])}>

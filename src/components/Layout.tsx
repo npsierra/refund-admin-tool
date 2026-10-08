@@ -22,14 +22,14 @@ export function Layout() {
 
   return (
     <div className="flex h-full">
-      <aside className="flex w-60 shrink-0 flex-col bg-brand-900 text-brand-100">
+      <aside className="flex w-60 shrink-0 flex-col border-r border-brand-100 bg-brand-50 text-stone-700">
         <div className="flex items-center gap-2.5 px-5 py-5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 text-white">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-700 text-white">
             <ClipboardList size={18} />
           </span>
           <div>
-            <div className="text-sm font-semibold leading-tight text-white">Refund Admin</div>
-            <div className="text-[11px] text-brand-300">AcmePay Operations</div>
+            <div className="text-sm font-semibold leading-tight text-brand-900">Refund Admin</div>
+            <div className="text-[11px] text-brand-600">AcmePay Operations</div>
           </div>
         </div>
         <nav className="flex-1 space-y-0.5 px-3">
@@ -40,26 +40,26 @@ export function Layout() {
               end={end}
               className={({ isActive }) =>
                 clsx(
-                  'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition',
-                  isActive ? 'bg-white/10 text-white' : 'text-brand-200 hover:bg-white/5 hover:text-white',
+                  'group flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition [&_svg]:text-brand-700',
+                  isActive ? 'active bg-brand-700 text-white [&_svg]:text-white' : 'text-stone-700 hover:bg-brand-100 hover:text-brand-900',
                 )
               }
             >
               <Icon size={16} />
               <span className="flex-1">{label}</span>
               {to === '/queue' && openCount > 0 && (
-                <span className="rounded-full bg-white/15 px-1.5 text-[11px] font-semibold text-white">{openCount}</span>
+                <span className="rounded-full bg-brand-200/70 px-1.5 text-[11px] font-semibold text-brand-900 group-[.active]:bg-white/20 group-[.active]:text-white">{openCount}</span>
               )}
             </NavLink>
           ))}
           <div className="pt-4">
-            <div className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-brand-400">Account</div>
+            <div className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-brand-600">Account</div>
             <NavLink
               to="/settings"
               className={({ isActive }) =>
                 clsx(
-                  'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition',
-                  isActive ? 'bg-white/10 text-white' : 'text-brand-200 hover:bg-white/5 hover:text-white',
+                  'group flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition [&_svg]:text-brand-700',
+                  isActive ? 'active bg-brand-700 text-white [&_svg]:text-white' : 'text-stone-700 hover:bg-brand-100 hover:text-brand-900',
                 )
               }
             >
@@ -70,11 +70,11 @@ export function Layout() {
         </nav>
         <button
           onClick={() => navigate('/settings')}
-          className="m-3 flex items-center gap-3 rounded-lg border border-white/10 p-3 text-left transition hover:bg-white/5"
+          className="m-3 flex items-center gap-3 rounded-lg border border-brand-100 bg-white p-3 text-left transition hover:bg-brand-100/60"
         >
           <Avatar name={user.name} color={user.avatarColor} />
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-medium text-white">{user.name}</div>
+            <div className="truncate text-sm font-medium text-stone-900">{user.name}</div>
             <div className="mt-0.5">
               <RoleBadge role={user.role} />
             </div>
