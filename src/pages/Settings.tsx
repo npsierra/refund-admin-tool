@@ -167,6 +167,10 @@ function PolicyEditor({
             className="w-full"
             disabled={!dirty}
             onClick={() => {
+              if ([analyst, supervisor, threshold].some((v) => v.trim() === '')) {
+                setError('All three amounts are required')
+                return
+              }
               const res = onSave({ analyst: Number(analyst), supervisor: Number(supervisor), twoPersonThreshold: Number(threshold) })
               setError(res.ok ? null : (res.error ?? 'Could not save'))
             }}
