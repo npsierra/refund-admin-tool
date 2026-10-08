@@ -40,12 +40,15 @@ export function Button({ variant = 'secondary', size = 'md', className, ...props
   )
 }
 
+const widthOr = (className?: string) => (className && /\bw-/.test(className) ? '' : 'w-full')
+
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
       className={clsx(
-        'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100',
+        widthOr(props.className),
+        'rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100',
         props.className,
       )}
     />
@@ -57,7 +60,8 @@ export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
     <select
       {...props}
       className={clsx(
-        'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100',
+        widthOr(props.className),
+        'rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100',
         props.className,
       )}
     />
