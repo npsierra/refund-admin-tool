@@ -14,7 +14,7 @@ import type {
   RiskFlag,
   User,
 } from '../types'
-import { DEFAULT_POLICY, needsSecondApproval } from '../lib/policy'
+import { DEFAULT_POLICY, canApproveAmount, needsSecondApproval } from '../lib/policy'
 
 export const MERCHANTS = merchantsJson as Merchant[]
 export const USERS = usersJson as User[]
@@ -207,15 +207,20 @@ export function generateSeed(now = new Date()): SeedData {
   ]
 
   const used = new Set<string>()
-  statusPlan.forEach((status, i) => {
-    let purchase = pick(purchases)
-    while (used.has(purchase.id)) purchase = pick(purchases)
+  const minTwoPerson = DEFAULT_POLICY.twoPersonThreshold + 50
+  statusPlan.forEach((planned, i) => {
+    let status = planned
+    // Cases seeded as "pending second approval" need a purchase large enough to cross the two-person threshold.
+    const needsBig = status === 'pending_second_approval'
+    const eligible = purchases.filter((p) => !used.has(p.id) && (!needsBig || p.amount >= minTwoPerson))
+    const purchase = eligible.length ? pick(eligible) : pick(purchases.filter((p) => !used.has(p.id)))
+    if (needsBig && purchase.amount < minTwoPerson) status = 'approved'
     used.add(purchase.id)
     const merchant = MERCHANTS.find((m) => m.id === purchase.merchantId)!
     const customer = customers.find((c) => c.id === purchase.customerId)!
     const trigger = pick(TRIGGERS)
     const reason = pick(REASONS[trigger])
-    const isPartial = rand() < 0.3
+    const isPartial = status !== 'pending_second_approval' && rand() < 0.3
     const requestedAmount = isPartial ? Math.round(purchase.amount * (0.25 + rand() * 0.5) * 100) / 100 : purchase.amount
 
     const purchaseAgeDays = (now.getTime() - new Date(purchase.purchasedAt).getTime()) / 86400000
@@ -296,33 +301,36 @@ export function generateSeed(now = new Date()): SeedData {
     }
 
     if (['pending_second_approval', 'approved', 'executing', 'completed', 'failed'].includes(status)) {
-      const approvedAmount = rand() < 0.15 ? Math.round(requestedAmount * 0.5 * 100) / 100 : requestedAmount
+      const approvedAmount =
+        status !== 'pending_second_approval' && rand() < 0.15 ? Math.round(requestedAmount * 0.5 * 100) / 100 : requestedAmount
       refund.approvedAmount = approvedAmount
-      const limitApprover = approvedAmount <= DEFAULT_POLICY.approvalLimits.analyst ? agent : approvedAmount <= DEFAULT_POLICY.approvalLimits.supervisor ? supervisor : finance
-      decide('approve', limitApprover, approvedAmount, approvedAmount < requestedAmount ? 'Partial approval: restocking fee applied' : 'Within policy; evidence verified')
+      const needsSecond = needsSecondApproval(approvedAmount, DEFAULT_POLICY)
+      if (needsSecond && !refund.riskFlags.includes('high_value')) refund.riskFlags.push('high_value')
+      const first = [agent, supervisor, finance].find((u) => canApproveAmount(u, approvedAmount, DEFAULT_POLICY))!
+      decide('approve', first, approvedAmount, approvedAmount < requestedAmount ? 'Partial approval: restocking fee applied' : 'Within policy; evidence verified')
       log({
         at: t,
-        actorId: limitApprover.id,
-        actorName: limitApprover.name,
-        actorRole: limitApprover.role,
+        actorId: first.id,
+        actorName: first.name,
+        actorRole: first.role,
         action: approvedAmount < requestedAmount ? 'refund.partially_approved' : 'refund.approved',
         refundId: refund.id,
         merchantId: merchant.id,
         amount: approvedAmount,
         before: 'in_review',
-        after: needsSecondApproval(approvedAmount, DEFAULT_POLICY) ? 'pending_second_approval' : 'approved',
+        after: needsSecond ? 'pending_second_approval' : 'approved',
         reason: refund.decisions[0].reason,
       })
-      if (needsSecondApproval(approvedAmount, DEFAULT_POLICY) && status !== 'pending_second_approval') {
-        const second = limitApprover.id === finance.id ? supervisor : finance
-        decide('approve', second, approvedAmount, 'Second approval: amount above two-person threshold')
-        log({ at: t, actorId: second.id, actorName: second.name, actorRole: second.role, action: 'refund.second_approval', refundId: refund.id, merchantId: merchant.id, amount: approvedAmount, before: 'pending_second_approval', after: 'approved' })
-      }
-      if (status === 'pending_second_approval' && !needsSecondApproval(approvedAmount, DEFAULT_POLICY)) {
-        refund.approvedAmount = Math.max(approvedAmount, DEFAULT_POLICY.twoPersonThreshold + 50)
-        refund.requestedAmount = Math.max(refund.requestedAmount, refund.approvedAmount)
-        refund.decisions[0].amount = refund.approvedAmount
-        if (!refund.riskFlags.includes('high_value')) refund.riskFlags.push('high_value')
+      if (needsSecond && status !== 'pending_second_approval') {
+        const second = USERS.find((u) => u.id !== first.id && canApproveAmount(u, approvedAmount, DEFAULT_POLICY))
+        if (second) {
+          decide('approve', second, approvedAmount, 'Second approval: amount above two-person threshold')
+          log({ at: t, actorId: second.id, actorName: second.name, actorRole: second.role, action: 'refund.second_approval', refundId: refund.id, merchantId: merchant.id, amount: approvedAmount, before: 'pending_second_approval', after: 'approved' })
+        } else {
+          // Nobody else is allowed to countersign this amount; leave it waiting.
+          status = 'pending_second_approval'
+          refund.status = status
+        }
       }
     }
 
