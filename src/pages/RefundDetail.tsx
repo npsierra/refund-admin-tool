@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, CheckCircle2, Clock, PlayCircle, RotateCcw, ShieldAlert, XCircle } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, Loader2, PlayCircle, RotateCcw, ShieldAlert, XCircle } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { useCurrentUser, useStore } from '../store/useStore'
 import { Avatar, Badge, Button, Card, Field, Input, PageHeader, RiskFlagBadge, StatusBadge, Textarea } from '../components/ui'
@@ -43,10 +43,10 @@ export function RefundDetail() {
   if (!refund || !purchase || !merchant || !customer) {
     return (
       <div>
-        <Link to="/queue" className="text-sm text-indigo-600 hover:underline">
+        <Link to="/queue" className="text-sm text-brand-600 hover:underline">
           ← Back to queue
         </Link>
-        <p className="mt-6 text-slate-600">Refund case not found.</p>
+        <p className="mt-6 text-stone-600">Refund case not found.</p>
       </div>
     )
   }
@@ -75,7 +75,7 @@ export function RefundDetail() {
 
   return (
     <div>
-      <Link to="/queue" className="mb-3 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800">
+      <Link to="/queue" className="mb-3 inline-flex items-center gap-1 text-sm text-stone-500 hover:text-stone-800">
         <ArrowLeft size={14} /> Back to queue
       </Link>
       <PageHeader
@@ -99,13 +99,13 @@ export function RefundDetail() {
               <span
                 className={
                   'flex h-6 items-center gap-1 rounded-full px-2.5 font-medium ' +
-                  (failed ? 'bg-rose-100 text-rose-700' : done ? 'bg-emerald-100 text-emerald-700' : active ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500')
+                  (failed ? 'bg-rose-100 text-rose-700' : done ? 'bg-brand-100 text-brand-800' : active ? 'bg-brand-700 text-white' : 'bg-stone-100 text-stone-500')
                 }
               >
                 {done && !failed ? <CheckCircle2 size={12} /> : failed ? <XCircle size={12} /> : <span className="text-[10px]">{i + 1}</span>}
                 {s}
               </span>
-              {i < STEPS.length - 1 && <span className="h-px w-5 bg-slate-200" />}
+              {i < STEPS.length - 1 && <span className="h-px w-5 bg-stone-200" />}
             </li>
           )
         })}
@@ -122,10 +122,10 @@ export function RefundDetail() {
                 <span className={new Date(refund.slaDueAt).getTime() < now && ['queued', 'in_review', 'pending_second_approval'].includes(refund.status) ? 'text-rose-600' : ''}>{dateTime(refund.slaDueAt)}</span>
               </Field>
             </dl>
-            <p className="mt-4 rounded-lg bg-slate-50 p-3 text-sm text-slate-700">{refund.reason}</p>
+            <p className="mt-4 rounded-lg bg-stone-50 p-3 text-sm text-stone-700">{refund.reason}</p>
             {refund.riskFlags.length > 0 && (
               <div className="mt-4">
-                <div className="mb-1.5 flex items-center gap-1 text-xs font-medium text-slate-500">
+                <div className="mb-1.5 flex items-center gap-1 text-xs font-medium text-stone-500">
                   <ShieldAlert size={12} /> Risk flags
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -149,13 +149,13 @@ export function RefundDetail() {
                 </Field>
                 <Field label="Processor">{merchant.processor}</Field>
               </dl>
-              <ul className="mt-4 divide-y divide-slate-100 border-t border-slate-100 text-sm">
+              <ul className="mt-4 divide-y divide-stone-100 border-t border-stone-100 text-sm">
                 {purchase.items.map((it) => (
                   <li key={it.sku} className="flex justify-between py-2">
-                    <span className="text-slate-700">
-                      {it.qty}× {it.name} <span className="text-xs text-slate-400">{it.sku}</span>
+                    <span className="text-stone-700">
+                      {it.qty}× {it.name} <span className="text-xs text-stone-400">{it.sku}</span>
                     </span>
-                    <span className="tabular-nums text-slate-900">{money(it.qty * it.unitPrice)}</span>
+                    <span className="tabular-nums text-stone-900">{money(it.qty * it.unitPrice)}</span>
                   </li>
                 ))}
               </ul>
@@ -164,8 +164,8 @@ export function RefundDetail() {
               <div className="flex items-center gap-3">
                 <Avatar name={customer.name} size="lg" />
                 <div>
-                  <div className="font-medium text-slate-900">{customer.name}</div>
-                  <div className="text-xs text-slate-500">{customer.email}</div>
+                  <div className="font-medium text-stone-900">{customer.name}</div>
+                  <div className="text-xs text-stone-500">{customer.email}</div>
                 </div>
               </div>
               <dl className="mt-4 grid grid-cols-2 gap-3">
@@ -176,30 +176,30 @@ export function RefundDetail() {
                   <span className={customer.priorRefunds >= 3 ? 'font-medium text-amber-600' : ''}>{customer.priorRefunds}</span>
                 </Field>
               </dl>
-              <div className="mt-4 border-t border-slate-100 pt-3 text-xs text-slate-500">
+              <div className="mt-4 border-t border-stone-100 pt-3 text-xs text-stone-500">
                 Merchant policy: {merchant.refundPolicyDays}-day window · {merchant.riskTier} risk tier
               </div>
             </Card>
           </div>
 
-          <Card title="Case history" action={<span className="text-xs text-slate-400">{audit.length} audit entries</span>}>
-            <ol className="relative ml-2 border-l border-slate-200">
+          <Card title="Case history" action={<span className="text-xs text-stone-400">{audit.length} audit entries</span>}>
+            <ol className="relative ml-2 border-l border-stone-200">
               {[...audit].reverse().map((e) => (
                 <li key={e.id} className="mb-4 ml-5">
-                  <span className="absolute -left-1.5 mt-1.5 h-3 w-3 rounded-full border-2 border-white bg-slate-300" />
+                  <span className="absolute -left-1.5 mt-1.5 h-3 w-3 rounded-full border-2 border-white bg-stone-300" />
                   <div className="flex flex-wrap items-baseline gap-x-2 text-sm">
-                    <span className="font-medium text-slate-900">{e.actorName}</span>
-                    <span className="text-xs text-slate-400">{ROLE_LABELS[e.actorRole]}</span>
-                    <span className="text-slate-600">{titleCase(e.action.split('.')[1] ?? e.action).toLowerCase()}</span>
-                    {e.amount != null && e.amount > 0 && <span className="font-medium text-slate-800">{money(e.amount)}</span>}
+                    <span className="font-medium text-stone-900">{e.actorName}</span>
+                    <span className="text-xs text-stone-400">{ROLE_LABELS[e.actorRole]}</span>
+                    <span className="text-stone-600">{titleCase(e.action.split('.')[1] ?? e.action).toLowerCase()}</span>
+                    {e.amount != null && e.amount > 0 && <span className="font-medium text-stone-800">{money(e.amount)}</span>}
                     {e.before && e.after && (
-                      <span className="text-xs text-slate-500">
+                      <span className="text-xs text-stone-500">
                         {titleCase(e.before)} → {titleCase(e.after)}
                       </span>
                     )}
                   </div>
-                  {e.reason && <div className="mt-0.5 text-xs text-slate-500">“{e.reason}”</div>}
-                  <div className="mt-0.5 text-[11px] text-slate-400">{fullDateTime(e.at)}</div>
+                  {e.reason && <div className="mt-0.5 text-xs text-stone-500">“{e.reason}”</div>}
+                  <div className="mt-0.5 text-[11px] text-stone-400">{fullDateTime(e.at)}</div>
                 </li>
               ))}
             </ol>
@@ -212,7 +212,7 @@ export function RefundDetail() {
 
             {refund.status === 'queued' && (
               <div className="space-y-3">
-                <p className="text-sm text-slate-600">This case is waiting in the queue.</p>
+                <p className="text-sm text-stone-600">This case is waiting in the queue.</p>
                 <Button variant="primary" className="w-full" onClick={() => run(() => actions.startReview(refund.id))}>
                   Start review
                 </Button>
@@ -222,15 +222,15 @@ export function RefundDetail() {
             {isOpenForDecision && refund.status === 'in_review' && (
               <div className="space-y-3">
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">Approve amount (max {money(refund.requestedAmount)})</label>
+                  <label className="mb-1 block text-xs font-medium text-stone-600">Approve amount (max {money(refund.requestedAmount)})</label>
                   <Input type="number" step="0.01" min={0} max={refund.requestedAmount} placeholder={refund.requestedAmount.toFixed(2)} value={amount} onChange={(e) => setAmount(e.target.value)} />
                   {approveAmount > remaining && <p className="mt-1 text-xs text-amber-600">Exceeds remaining refundable balance ({money(remaining)}).</p>}
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">Reason</label>
+                  <label className="mb-1 block text-xs font-medium text-stone-600">Reason</label>
                   <Textarea rows={3} placeholder="Why are you making this decision?" value={reason} onChange={(e) => setReason(e.target.value)} />
                 </div>
-                <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
+                <div className="rounded-lg bg-stone-50 p-3 text-xs text-stone-600">
                   <div className="flex justify-between">
                     <span>Your limit ({ROLE_LABELS[me.role]})</span>
                     <span className="font-medium">{Number.isFinite(policy.approvalLimits[me.role]) ? money(policy.approvalLimits[me.role]) : 'Unlimited'}</span>
@@ -253,7 +253,7 @@ export function RefundDetail() {
                     Escalate
                   </Button>
                 </div>
-                {!reason.trim() && <p className="text-center text-[11px] text-slate-400">A reason is required for every decision.</p>}
+                {!reason.trim() && <p className="text-center text-[11px] text-stone-400">A reason is required for every decision.</p>}
               </div>
             )}
 
@@ -283,7 +283,7 @@ export function RefundDetail() {
 
             {refund.status === 'approved' && (
               <div className="space-y-3">
-                <div className="rounded-lg bg-indigo-50 p-3 text-xs text-indigo-800">
+                <div className="rounded-lg bg-brand-50 p-3 text-xs text-brand-800">
                   Fully approved for {money(refund.approvedAmount ?? 0)}. Execution sends the credit to {merchant.processor}.
                 </div>
                 {!canExecute(me) && <p className="text-xs text-rose-600">Only Supervisors and Admins can execute payouts.</p>}
@@ -294,8 +294,8 @@ export function RefundDetail() {
             )}
 
             {refund.status === 'executing' && (
-              <div className="flex items-center gap-2 text-sm text-slate-600">
-                <Clock size={16} className="animate-spin text-violet-500" /> Sending {money(refund.execution?.amount ?? 0)} to {merchant.processor}…
+              <div className="flex items-center gap-2 text-sm text-stone-600">
+                <Loader2 size={16} className="animate-spin text-brand-600" /> Sending {money(refund.execution?.amount ?? 0)} to {merchant.processor}…
               </div>
             )}
 
@@ -323,7 +323,7 @@ export function RefundDetail() {
             )}
 
             {refund.status === 'rejected' && (
-              <div className="text-sm text-slate-600">
+              <div className="text-sm text-stone-600">
                 Rejected by {refund.decisions.find((d) => d.action === 'reject')?.byName}: “{refund.decisions.find((d) => d.action === 'reject')?.reason}”
               </div>
             )}
@@ -335,7 +335,7 @@ export function RefundDetail() {
                 <Avatar name={assignee.name} color={assignee.avatarColor} size="sm" /> {assignee.name}
               </div>
             ) : (
-              <p className="text-sm text-slate-500">Unassigned</p>
+              <p className="text-sm text-stone-500">Unassigned</p>
             )}
             {assignee?.id !== me.id && ['queued', 'in_review', 'pending_second_approval'].includes(refund.status) && (
               <Button size="sm" className="mt-3" onClick={() => actions.assignToMe(refund.id)}>
@@ -346,19 +346,19 @@ export function RefundDetail() {
 
           <Card title="Decisions">
             {refund.decisions.length === 0 ? (
-              <p className="text-sm text-slate-500">No decisions yet.</p>
+              <p className="text-sm text-stone-500">No decisions yet.</p>
             ) : (
               <ul className="space-y-3">
                 {refund.decisions.map((d, i) => (
                   <li key={i} className="text-sm">
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-slate-900">{d.byName}</span>
+                      <span className="font-medium text-stone-900">{d.byName}</span>
                       <Badge tone={d.action === 'approve' ? 'success' : d.action === 'reject' ? 'danger' : 'warn'}>{titleCase(d.action)}</Badge>
                     </div>
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs text-stone-500">
                       {ROLE_LABELS[d.role]} · {dateTime(d.at)} {d.amount > 0 && `· ${money(d.amount)}`}
                     </div>
-                    <div className="mt-1 text-xs text-slate-600">“{d.reason}”</div>
+                    <div className="mt-1 text-xs text-stone-600">“{d.reason}”</div>
                   </li>
                 ))}
               </ul>
@@ -368,9 +368,9 @@ export function RefundDetail() {
           <Card title="Notes">
             <ul className="mb-3 space-y-2">
               {refund.notes.map((n) => (
-                <li key={n.id} className="rounded-lg bg-slate-50 p-2.5 text-sm">
-                  <div className="text-slate-800">{n.text}</div>
-                  <div className="mt-1 text-[11px] text-slate-400">
+                <li key={n.id} className="rounded-lg bg-stone-50 p-2.5 text-sm">
+                  <div className="text-stone-800">{n.text}</div>
+                  <div className="mt-1 text-[11px] text-stone-400">
                     {n.byName} · {dateTime(n.at)}
                   </div>
                 </li>

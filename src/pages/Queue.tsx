@@ -59,7 +59,7 @@ export function Queue() {
       <PageHeader title="Refund Queue" subtitle={`${rows.length} case${rows.length === 1 ? '' : 's'} match your filters`} />
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <div className="relative w-64">
-          <Search size={14} className="pointer-events-none absolute left-3 top-2.5 text-slate-400" />
+          <Search size={14} className="pointer-events-none absolute left-3 top-2.5 text-stone-400" />
           <Input placeholder="Search case, order, customer…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-8" />
         </div>
         <Select value={status} onChange={(e) => setParam('status', e.target.value)} className="w-44">
@@ -85,8 +85,8 @@ export function Queue() {
           <option value="oldest">Oldest</option>
           <option value="amount_desc">Amount (high → low)</option>
         </Select>
-        <label className="ml-auto flex items-center gap-2 text-sm text-slate-600">
-          <input type="checkbox" checked={mine} onChange={(e) => setParam('mine', e.target.checked ? '1' : '0')} className="rounded border-slate-300" />
+        <label className="ml-auto flex items-center gap-2 text-sm text-stone-600">
+          <input type="checkbox" checked={mine} onChange={(e) => setParam('mine', e.target.checked ? '1' : '0')} className="rounded border-stone-300" />
           Assigned to me
         </label>
       </div>
@@ -94,9 +94,9 @@ export function Queue() {
       {rows.length === 0 ? (
         <Empty>No refund cases match these filters.</Empty>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+            <thead className="bg-stone-50 text-left text-xs font-medium uppercase tracking-wide text-stone-500">
               <tr>
                 <th className="px-4 py-3">Case</th>
                 <th className="px-4 py-3">Customer / Merchant</th>
@@ -108,7 +108,7 @@ export function Queue() {
                 <th className="px-4 py-3">Assignee</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-stone-100">
               {rows.map((r) => {
                 const c = customers.find((x) => x.id === r.customerId)
                 const m = merchants.find((x) => x.id === r.merchantId)
@@ -116,23 +116,23 @@ export function Queue() {
                 const breached = OPEN_STATUSES.includes(r.status) && new Date(r.slaDueAt).getTime() < now
                 const closed = !OPEN_STATUSES.includes(r.status)
                 return (
-                  <tr key={r.id} className="hover:bg-slate-50">
+                  <tr key={r.id} className="hover:bg-stone-50">
                     <td className="px-4 py-3">
-                      <Link to={`/refunds/${r.id}`} className="font-medium text-indigo-600 hover:underline">
+                      <Link to={`/refunds/${r.id}`} className="font-medium text-brand-600 hover:underline">
                         {r.id}
                       </Link>
-                      <div className="text-xs text-slate-400">{r.purchaseId}</div>
+                      <div className="text-xs text-stone-400">{r.purchaseId}</div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="font-medium text-slate-800">{c?.name}</div>
-                      <div className="text-xs text-slate-500">{m?.name}</div>
+                      <div className="font-medium text-stone-800">{c?.name}</div>
+                      <div className="text-xs text-stone-500">{m?.name}</div>
                     </td>
                     <td className="px-4 py-3">
                       <Badge tone={r.trigger === 'chargeback' || r.trigger === 'fraud_review' ? 'danger' : 'neutral'}>{titleCase(r.trigger)}</Badge>
                     </td>
-                    <td className="px-4 py-3 text-right font-medium tabular-nums text-slate-900">
+                    <td className="px-4 py-3 text-right font-medium tabular-nums text-stone-900">
                       {money(r.approvedAmount ?? r.requestedAmount)}
-                      {r.approvedAmount != null && r.approvedAmount < r.requestedAmount && <div className="text-xs font-normal text-slate-400">of {money(r.requestedAmount)}</div>}
+                      {r.approvedAmount != null && r.approvedAmount < r.requestedAmount && <div className="text-xs font-normal text-stone-400">of {money(r.requestedAmount)}</div>}
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={r.status} />
@@ -147,22 +147,22 @@ export function Queue() {
                     </td>
                     <td className="px-4 py-3 text-xs">
                       {closed ? (
-                        <span className="text-slate-400">—</span>
+                        <span className="text-stone-400">—</span>
                       ) : breached ? (
                         <span className="inline-flex items-center gap-1 font-medium text-rose-600">
                           <AlertTriangle size={12} /> {relative(r.slaDueAt)}
                         </span>
                       ) : (
-                        <span className="text-slate-600">{relative(r.slaDueAt)}</span>
+                        <span className="text-stone-600">{relative(r.slaDueAt)}</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
                       {a ? (
-                        <span className="inline-flex items-center gap-2 text-xs text-slate-700">
+                        <span className="inline-flex items-center gap-2 text-xs text-stone-700">
                           <Avatar name={a.name} color={a.avatarColor} size="sm" /> {a.name.split(' ')[0]}
                         </span>
                       ) : (
-                        <span className="text-xs text-slate-400">Unassigned</span>
+                        <span className="text-xs text-stone-400">Unassigned</span>
                       )}
                     </td>
                   </tr>

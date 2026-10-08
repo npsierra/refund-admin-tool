@@ -57,13 +57,13 @@ export function NewRefund() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <Card title="1. Find the purchase" className="lg:col-span-3">
           <div className="relative mb-3">
-            <Search size={14} className="pointer-events-none absolute left-3 top-2.5 text-slate-400" />
+            <Search size={14} className="pointer-events-none absolute left-3 top-2.5 text-stone-400" />
             <Input placeholder="Search by order ID, customer, or merchant…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-8" autoFocus />
           </div>
           {results.length === 0 ? (
             <Empty>No eligible purchases found.</Empty>
           ) : (
-            <ul className="divide-y divide-slate-100 overflow-hidden rounded-lg border border-slate-200">
+            <ul className="divide-y divide-stone-100 overflow-hidden rounded-lg border border-stone-200">
               {results.map((p) => {
                 const c = customers.find((x) => x.id === p.customerId)
                 const m = merchants.find((x) => x.id === p.merchantId)
@@ -75,19 +75,19 @@ export function NewRefund() {
                         setPurchaseId(p.id)
                         setAmount('')
                       }}
-                      className={'flex w-full items-center justify-between px-4 py-3 text-left text-sm transition ' + (active ? 'bg-indigo-50' : 'hover:bg-slate-50')}
+                      className={'flex w-full items-center justify-between px-4 py-3 text-left text-sm transition ' + (active ? 'bg-brand-50' : 'hover:bg-stone-50')}
                     >
                       <div>
-                        <div className="font-medium text-slate-900">
-                          {c?.name} <span className="font-normal text-slate-400">· {m?.name}</span>
+                        <div className="font-medium text-stone-900">
+                          {c?.name} <span className="font-normal text-stone-400">· {m?.name}</span>
                         </div>
-                        <div className="text-xs text-slate-500">
+                        <div className="text-xs text-stone-500">
                           {p.id} · {shortDate(p.purchasedAt)} · {p.items.map((i) => i.name).join(', ')}
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-medium tabular-nums text-slate-900">{money(p.amount)}</div>
-                        {p.refundedAmount > 0 && <div className="text-xs text-slate-400">{money(p.refundedAmount)} refunded</div>}
+                        <div className="font-medium tabular-nums text-stone-900">{money(p.amount)}</div>
+                        {p.refundedAmount > 0 && <div className="text-xs text-stone-400">{money(p.refundedAmount)} refunded</div>}
                       </div>
                     </button>
                   </li>
@@ -99,10 +99,10 @@ export function NewRefund() {
 
         <Card title="2. Refund details" className="lg:col-span-2">
           {!selected ? (
-            <p className="text-sm text-slate-500">Select a purchase to continue.</p>
+            <p className="text-sm text-stone-500">Select a purchase to continue.</p>
           ) : (
             <div className="space-y-4">
-              <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
+              <div className="rounded-lg bg-stone-50 p-3 text-xs text-stone-600">
                 <div className="flex justify-between">
                   <span>Order total</span>
                   <span className="font-medium">{money(selected.amount)}</span>
