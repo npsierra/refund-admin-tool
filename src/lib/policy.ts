@@ -41,6 +41,18 @@ export const STATUS_LABELS: Record<RefundStatus, string> = {
   failed: 'Failed',
 }
 
+// Solid fill matching each status pill, for charts/bars.
+export const STATUS_BAR: Record<RefundStatus, string> = {
+  queued: 'bg-stone-400',
+  in_review: 'bg-sky-500',
+  pending_second_approval: 'bg-amber-400',
+  approved: 'bg-brand-400',
+  rejected: 'bg-rose-400',
+  executing: 'bg-teal-500',
+  completed: 'bg-brand-700',
+  failed: 'bg-red-500',
+}
+
 export const OPEN_STATUSES: RefundStatus[] = ['queued', 'in_review', 'pending_second_approval', 'approved', 'failed']
 
 export const canApproveAmount = (user: User, amount: number, policy: Policy) =>
