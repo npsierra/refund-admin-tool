@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, CheckCircle2, Clock, PlayCircle, RotateCcw, ShieldAlert, XCircle } from 'lucide-react'
+import { useShallow } from 'zustand/react/shallow'
 import { useCurrentUser, useStore } from '../store/useStore'
 import { Avatar, Badge, Button, Card, Field, Input, PageHeader, RiskFlagBadge, StatusBadge, Textarea } from '../components/ui'
 import { dateTime, fullDateTime, money, relative, shortDate, titleCase, useNow } from '../lib/format'
@@ -15,19 +16,22 @@ export function RefundDetail() {
   const merchant = useStore((s) => s.merchants.find((m) => m.id === refund?.merchantId))
   const customer = useStore((s) => s.customers.find((c) => c.id === refund?.customerId))
   const assignee = useStore((s) => s.users.find((u) => u.id === refund?.assigneeId))
-  const audit = useStore((s) => s.audit.filter((a) => a.refundId === id))
+  const allAudit = useStore((s) => s.audit)
+  const audit = allAudit.filter((a) => a.refundId === id)
   const policy = useStore((s) => s.policy)
-  const actions = useStore((s) => ({
-    startReview: s.startReview,
-    assignToMe: s.assignToMe,
-    approve: s.approve,
-    secondApprove: s.secondApprove,
-    reject: s.reject,
-    escalate: s.escalate,
-    addNote: s.addNote,
-    execute: s.execute,
-    retry: s.retry,
-  }))
+  const actions = useStore(
+    useShallow((s) => ({
+      startReview: s.startReview,
+      assignToMe: s.assignToMe,
+      approve: s.approve,
+      secondApprove: s.secondApprove,
+      reject: s.reject,
+      escalate: s.escalate,
+      addNote: s.addNote,
+      execute: s.execute,
+      retry: s.retry,
+    })),
+  )
   const me = useCurrentUser()
   const now = useNow()
 
