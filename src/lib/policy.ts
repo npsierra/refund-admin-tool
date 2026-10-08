@@ -50,12 +50,14 @@ export const needsSecondApproval = (amount: number, policy: Policy) => amount >=
 
 export const canExecute = (user: User) => user.role === 'admin' || user.role === 'supervisor'
 
-export const canSecondApprove = (user: User, refund: RefundRequest, policy: Policy) => {
+// Any Supervisor or Admin may countersign; the per-role limit applies to the first approval only.
+export const canCountersign = (user: User) => user.role === 'admin' || user.role === 'supervisor'
+
+export const canSecondApprove = (user: User, refund: RefundRequest, _policy: Policy) => {
   const first = refund.decisions.find((d) => d.action === 'approve')
   if (!first) return false
   if (first.by === user.id) return false
-  const amount = refund.approvedAmount ?? refund.requestedAmount
-  return canApproveAmount(user, amount, policy)
+  return canCountersign(user)
 }
 
 export const explainApprovalBlock = (user: User, amount: number, policy: Policy): string | null => {

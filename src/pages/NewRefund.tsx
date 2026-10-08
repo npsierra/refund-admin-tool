@@ -114,7 +114,16 @@ export function NewRefund() {
               </div>
               <div>
                 <Label>Amount</Label>
-                <Input type="number" step="0.01" min={0} max={remaining} placeholder={remaining.toFixed(2)} value={amount} onChange={(e) => setAmount(e.target.value)} />
+                <Input
+                  type="number"
+                  step="1"
+                  min={0}
+                  max={remaining}
+                  placeholder={remaining.toFixed(2)}
+                  value={amount}
+                  onFocus={() => amount === '' && setAmount(remaining.toFixed(2))}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
                 {amt > remaining && <p className="mt-1 text-xs text-rose-600">Cannot exceed refundable balance.</p>}
               </div>
               <div className="grid grid-cols-2 gap-3">

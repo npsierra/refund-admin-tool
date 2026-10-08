@@ -16,7 +16,7 @@ export function Merchants() {
 
   return (
     <div>
-      <PageHeader title="Merchants" subtitle="Fake companies in the demo dataset and their purchase history" />
+      <PageHeader title="Merchants" subtitle="Fictional companies in the demo dataset and their purchase history" />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-2">
           {merchants.map((x) => {

@@ -5,7 +5,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { useCurrentUser, useStore } from '../store/useStore'
 import { Avatar, Badge, Button, Card, Field, Input, PageHeader, RiskFlagBadge, StatusBadge, Textarea } from '../components/ui'
 import { dateTime, fullDateTime, money, relative, shortDate, titleCase, useNow } from '../lib/format'
-import { ROLE_LABELS, canApproveAmount, canExecute, canSecondApprove, explainApprovalBlock, needsSecondApproval } from '../lib/policy'
+import { ROLE_LABELS, canCountersign, canExecute, canSecondApprove, explainApprovalBlock, needsSecondApproval } from '../lib/policy'
 
 const STEPS = ['Trigger', 'Queue', 'Review', 'Decision', 'Execution', 'Recorded'] as const
 
@@ -267,9 +267,9 @@ export function RefundDetail() {
                   <p className="text-xs text-rose-600">
                     {refund.decisions.some((d) => d.action === 'approve' && d.by === me.id)
                       ? 'You made the first approval — switch to another user to countersign.'
-                      : canApproveAmount(me, refund.approvedAmount ?? 0, policy)
+                      : canCountersign(me)
                         ? ''
-                        : `Exceeds your ${ROLE_LABELS[me.role]} limit.`}
+                        : 'Analysts cannot countersign — switch to a Supervisor or Admin.'}
                   </p>
                 )}
                 <Button variant="success" className="w-full" disabled={!canSecondApprove(me, refund, policy) || !reason.trim()} onClick={() => run(() => actions.secondApprove(refund.id, reason))}>
