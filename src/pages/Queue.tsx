@@ -25,7 +25,8 @@ export function Queue() {
 
   const setParam = (k: string, v: string | null) => {
     const next = new URLSearchParams(params)
-    if (!v || v === 'all' || v === '0') next.delete(k)
+    const isDefault = k === 'status' ? v === 'open' : v === 'all' || v === '0'
+    if (!v || isDefault) next.delete(k)
     else next.set(k, v)
     setParams(next, { replace: true })
   }
