@@ -75,7 +75,7 @@ export const canSecondApprove = (user: User, refund: RefundRequest, _policy: Pol
 export const explainApprovalBlock = (user: User, amount: number, policy: Policy): string | null => {
   const limit = policy.approvalLimits[user.role]
   if (amount > limit) {
-    return `Exceeds your ${ROLE_LABELS[user.role]} limit. Escalate to a Supervisor or Admin.`
+    return `Exceeds your ${ROLE_LABELS[user.role]} limit. Escalate to ${user.role === 'analyst' ? 'a Supervisor or Admin' : 'an Admin'}.`
   }
   return null
 }
