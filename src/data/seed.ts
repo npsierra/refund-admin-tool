@@ -137,7 +137,9 @@ export function generateSeed(now = new Date()): SeedData {
   const int = (min: number, max: number) => Math.floor(rand() * (max - min + 1)) + min
   const daysAgo = (d: number, jitterHours = 12) =>
     new Date(now.getTime() - d * 86400000 - rand() * jitterHours * 3600000).toISOString()
-  const hoursAfter = (iso: string, h: number) => new Date(new Date(iso).getTime() + h * 3600000).toISOString()
+  // Never generate an event in the future: history must read as "ago" right after a reset.
+  const hoursAfter = (iso: string, h: number) =>
+    new Date(Math.min(now.getTime() - 60000, new Date(iso).getTime() + h * 3600000)).toISOString()
 
   const customers: Customer[] = []
   for (let i = 0; i < 48; i++) {
@@ -233,7 +235,7 @@ export function generateSeed(now = new Date()): SeedData {
     if (rand() < 0.08) flags.push('velocity')
 
     const isTerminal = ['completed', 'rejected', 'failed', 'executing', 'approved'].includes(status)
-    const createdDaysAgo = isTerminal ? int(3, 40) : int(0, 3)
+    const createdDaysAgo = isTerminal ? int(3, 40) : int(1, 3)
     const createdAt = daysAgo(createdDaysAgo, 20)
     const priority: RefundRequest['priority'] =
       trigger === 'chargeback' || flags.includes('high_value') ? 'high' : rand() < 0.2 ? 'low' : 'normal'

@@ -41,7 +41,7 @@ Other scripts:
 
 1. **Settings → Reset demo data** so the dataset is fresh.
 2. **Dashboard** as Priya (Analyst): pipeline by stage, unassigned count.
-3. **Queue** (already filtered to "Assigned to me") → open a *Queued* case → **Assign to me** → **Start review** → try to approve an amount over $250 → blocked by the Analyst limit.
+3. On the **Dashboard**, click the *Queued* stage bar to open those cases (the Queue otherwise defaults to "Assigned to me" for Analysts) → open one → **Assign to me** → **Start review** → try to approve an amount over $250 → blocked by the Analyst limit.
 4. **Settings → Switch to David (Admin)** → under *Roles & approval policy* raise the Analyst limit to **$500** → **Save policy**. Open **Audit Log**: a `policy.updated` row shows *Analyst limit $250.00 → $500.00*.
 5. **Switch back to Priya** → the same approval now succeeds.
 6. Open a case **≥ $1,000** as Elena (Supervisor) → **Approve** → status becomes *Needs 2nd Approval*. Elena cannot countersign her own approval; **switch to David** → **Countersign** → **Execute** → settles with a processor reference.
