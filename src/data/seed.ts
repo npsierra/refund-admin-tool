@@ -137,9 +137,10 @@ export function generateSeed(now = new Date()): SeedData {
   const int = (min: number, max: number) => Math.floor(rand() * (max - min + 1)) + min
   const daysAgo = (d: number, jitterHours = 12) =>
     new Date(now.getTime() - d * 86400000 - rand() * jitterHours * 3600000).toISOString()
-  // Never generate an event in the future: history must read as "ago" right after a reset.
+  const addHours = (iso: string, h: number) => new Date(new Date(iso).getTime() + h * 3600000).toISOString()
+  // History events never land in the future: they must read as "ago" right after a reset. Deadlines use addHours.
   const hoursAfter = (iso: string, h: number) =>
-    new Date(Math.min(now.getTime() - 60000, new Date(iso).getTime() + h * 3600000)).toISOString()
+    new Date(Math.min(now.getTime() - 60000, new Date(addHours(iso, h)).getTime())).toISOString()
 
   const customers: Customer[] = []
   for (let i = 0; i < 48; i++) {
@@ -239,7 +240,7 @@ export function generateSeed(now = new Date()): SeedData {
     const createdAt = daysAgo(createdDaysAgo, 20)
     const priority: RefundRequest['priority'] =
       trigger === 'chargeback' || flags.includes('high_value') ? 'high' : rand() < 0.2 ? 'low' : 'normal'
-    const slaDueAt = hoursAfter(createdAt, DEFAULT_POLICY.slaHours[priority])
+    const slaDueAt = addHours(createdAt, DEFAULT_POLICY.slaHours[priority])
 
     const refund: RefundRequest = {
       id: `RF-${String(1042 + i).padStart(4, '0')}`,
