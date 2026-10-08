@@ -9,7 +9,7 @@ import {
   needsSecondApproval,
   type Policy,
 } from '../lib/policy'
-import { uid } from '../lib/format'
+import { uid, money } from '../lib/format'
 import type {
   AuditAction,
   AuditEntry,
@@ -39,6 +39,7 @@ export interface Actions {
   currentUser: () => User
   switchUser: (userId: string) => void
   resetData: () => void
+  updatePolicy: (patch: { analyst: number; supervisor: number; twoPersonThreshold: number }) => { ok: boolean; error?: string }
   createRefund: (input: {
     purchaseId: string
     amount: number
@@ -159,6 +160,23 @@ export const useStore = create<State & Actions>()(
           if (!to || to.id === from.id) return
           set({ currentUserId: userId })
           log({ action: 'user.role_switched', before: `${from.name} (${from.role})`, after: `${to.name} (${to.role})`, actorId: to.id, actorName: to.name, actorRole: to.role })
+        },
+
+        updatePolicy: ({ analyst, supervisor, twoPersonThreshold }) => {
+          const u = get().currentUser()
+          if (u.role !== 'admin') return { ok: false, error: 'Only Admins can change policy' }
+          if (![analyst, supervisor, twoPersonThreshold].every((n) => Number.isFinite(n) && n >= 0)) return { ok: false, error: 'Enter valid amounts' }
+          if (analyst > supervisor) return { ok: false, error: 'Analyst limit cannot exceed Supervisor limit' }
+          const prev = get().policy
+          const next: Policy = { ...prev, approvalLimits: { ...prev.approvalLimits, analyst, supervisor }, twoPersonThreshold }
+          const changes: string[] = []
+          if (prev.approvalLimits.analyst !== analyst) changes.push(`Analyst limit ${money(prev.approvalLimits.analyst)} → ${money(analyst)}`)
+          if (prev.approvalLimits.supervisor !== supervisor) changes.push(`Supervisor limit ${money(prev.approvalLimits.supervisor)} → ${money(supervisor)}`)
+          if (prev.twoPersonThreshold !== twoPersonThreshold) changes.push(`Two-person threshold ${money(prev.twoPersonThreshold)} → ${money(twoPersonThreshold)}`)
+          if (changes.length === 0) return { ok: false, error: 'No changes' }
+          set({ policy: next })
+          log({ action: 'policy.updated', reason: changes.join('; '), before: JSON.stringify({ ...prev.approvalLimits, admin: 'unlimited', twoPersonThreshold: prev.twoPersonThreshold }), after: JSON.stringify({ ...next.approvalLimits, admin: 'unlimited', twoPersonThreshold }) })
+          return { ok: true }
         },
 
         resetData: () => {

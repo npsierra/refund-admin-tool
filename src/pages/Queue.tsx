@@ -20,12 +20,13 @@ export function Queue() {
   const [sort, setSort] = useState<Sort>('sla')
   const status = (params.get('status') ?? 'open') as RefundStatus | 'open' | 'all'
   const merchant = params.get('merchant') ?? 'all'
-  const mine = params.get('mine') === '1'
+  const mineDefault = me.role === 'analyst'
+  const mine = params.has('mine') ? params.get('mine') === '1' : mineDefault
   const now = useNow()
 
   const setParam = (k: string, v: string | null) => {
     const next = new URLSearchParams(params)
-    const isDefault = k === 'status' ? v === 'open' : v === 'all' || v === '0'
+    const isDefault = k === 'status' ? v === 'open' : k === 'mine' ? v === (mineDefault ? '1' : '0') : v === 'all' || v === '0'
     if (!v || isDefault) next.delete(k)
     else next.set(k, v)
     setParams(next, { replace: true })
