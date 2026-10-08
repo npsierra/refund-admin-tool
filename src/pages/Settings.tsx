@@ -24,8 +24,8 @@ export function SettingsPage() {
           <div className="flex items-center gap-3">
             <Avatar name={me.name} color={me.avatarColor} size="lg" />
             <div>
-              <div className="font-medium text-slate-900">{me.name}</div>
-              <div className="text-xs text-slate-500">{me.email}</div>
+              <div className="font-medium text-stone-900">{me.name}</div>
+              <div className="text-xs text-stone-500">{me.email}</div>
             </div>
           </div>
           <dl className="mt-4 grid grid-cols-2 gap-3">
@@ -39,13 +39,13 @@ export function SettingsPage() {
         </Card>
 
         <Card title="Switch user" className="lg:col-span-2">
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-stone-100">
             {users.map((u) => (
               <li key={u.id} className="flex items-center gap-3 py-3">
                 <Avatar name={u.name} color={u.avatarColor} />
                 <div className="flex-1">
-                  <div className="text-sm font-medium text-slate-900">{u.name}</div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-sm font-medium text-stone-900">{u.name}</div>
+                  <div className="text-xs text-stone-500">
                     {ROLE_LABELS[u.role]} · {u.team}
                   </div>
                 </div>
@@ -67,7 +67,7 @@ export function SettingsPage() {
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card title="Roles & approval policy" className="lg:col-span-2">
           <table className="w-full text-sm">
-            <thead className="text-left text-xs text-slate-500">
+            <thead className="text-left text-xs text-stone-500">
               <tr>
                 <th className="pb-2">Role</th>
                 <th className="pb-2">Can approve up to</th>
@@ -75,7 +75,7 @@ export function SettingsPage() {
                 <th className="pb-2">Description</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-stone-100">
               {ROLES.map((r) => (
                 <tr key={r}>
                   <td className="py-2.5">
@@ -83,19 +83,19 @@ export function SettingsPage() {
                   </td>
                   <td className="py-2.5 font-medium">{Number.isFinite(policy.approvalLimits[r]) ? money(policy.approvalLimits[r]) : 'Unlimited'}</td>
                   <td className="py-2.5">{r === 'analyst' ? 'No' : 'Yes'}</td>
-                  <td className="py-2.5 text-xs text-slate-600">{ROLE_DESCRIPTIONS[r]}</td>
+                  <td className="py-2.5 text-xs text-stone-600">{ROLE_DESCRIPTIONS[r]}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <div className="mt-4 rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
-            <span className="font-medium text-slate-800">Two-person rule:</span> refunds of {money(policy.twoPersonThreshold)} or more require a second approval from a different user with sufficient limit before execution.
+          <div className="mt-4 rounded-lg bg-stone-50 p-3 text-xs text-stone-600">
+            <span className="font-medium text-stone-800">Two-person rule:</span> refunds of {money(policy.twoPersonThreshold)} or more require a second approval from a different Supervisor or Admin before execution.
           </div>
         </Card>
 
         <Card title="Demo data">
-          <p className="text-sm text-slate-600">All data is synthetic and stored in your browser. Reset to return to the original seed.</p>
-          <p className="mt-2 text-xs text-slate-400">Seeded {fullDateTime(seededAt)}</p>
+          <p className="text-sm text-stone-600">All data is synthetic and stored in your browser. Reset to return to the original seed.</p>
+          <p className="mt-2 text-xs text-stone-400">Seeded {fullDateTime(seededAt)}</p>
           {confirmReset ? (
             <div className="mt-4 flex gap-2">
               <Button

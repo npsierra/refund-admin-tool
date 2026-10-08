@@ -40,7 +40,7 @@ export function AuditLog() {
     const esc = (v: unknown) => {
       const str = String(v ?? '')
       // Neutralise spreadsheet formula injection (=, +, -, @, tab, CR).
-      const safe = /^[=+\-@\t\r]/.test(str) ? `'${str}` : str
+      const safe = /^\s*[=+\-@\t\r]/.test(str) ? `'${str}` : str
       return `"${safe.replace(/"/g, '""')}"`
     }
     const lines = rows.map((e) =>
@@ -68,7 +68,7 @@ export function AuditLog() {
       />
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <div className="relative w-64">
-          <Search size={14} className="pointer-events-none absolute left-3 top-2.5 text-slate-400" />
+          <Search size={14} className="pointer-events-none absolute left-3 top-2.5 text-stone-400" />
           <Input placeholder="Search case ID, reason, actor…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-8" />
         </div>
         <Select value={actor} onChange={(e) => setActor(e.target.value)} className="w-44">
@@ -101,9 +101,9 @@ export function AuditLog() {
       {rows.length === 0 ? (
         <Empty>No audit entries match.</Empty>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+            <thead className="bg-stone-50 text-left text-xs font-medium uppercase tracking-wide text-stone-500">
               <tr>
                 <th className="px-4 py-3">When</th>
                 <th className="px-4 py-3">Who</th>
@@ -114,12 +114,12 @@ export function AuditLog() {
                 <th className="px-4 py-3">Reason / details</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-stone-100">
               {rows.map((e) => (
-                <tr key={e.id} className="align-top hover:bg-slate-50">
-                  <td className="whitespace-nowrap px-4 py-2.5 text-xs text-slate-500">{fullDateTime(e.at)}</td>
+                <tr key={e.id} className="align-top hover:bg-stone-50">
+                  <td className="whitespace-nowrap px-4 py-2.5 text-xs text-stone-500">{fullDateTime(e.at)}</td>
                   <td className="px-4 py-2.5">
-                    <div className="font-medium text-slate-800">{e.actorName}</div>
+                    <div className="font-medium text-stone-800">{e.actorName}</div>
                     {e.actorId !== 'system' && <RoleBadge role={e.actorRole} />}
                   </td>
                   <td className="px-4 py-2.5">
@@ -127,27 +127,27 @@ export function AuditLog() {
                   </td>
                   <td className="px-4 py-2.5">
                     {e.refundId ? (
-                      <Link to={`/refunds/${e.refundId}`} className="font-medium text-indigo-600 hover:underline">
+                      <Link to={`/refunds/${e.refundId}`} className="font-medium text-brand-600 hover:underline">
                         {e.refundId}
                       </Link>
                     ) : (
-                      <span className="text-slate-400">—</span>
+                      <span className="text-stone-400">—</span>
                     )}
                   </td>
-                  <td className="px-4 py-2.5 text-right tabular-nums text-slate-800">{e.amount != null ? money(e.amount) : <span className="text-slate-300">—</span>}</td>
-                  <td className="whitespace-nowrap px-4 py-2.5 text-xs text-slate-600">
+                  <td className="px-4 py-2.5 text-right tabular-nums text-stone-800">{e.amount != null ? money(e.amount) : <span className="text-stone-300">—</span>}</td>
+                  <td className="whitespace-nowrap px-4 py-2.5 text-xs text-stone-600">
                     {e.before || e.after ? (
                       <>
-                        {e.before ? titleCase(e.before) : '∅'} <span className="text-slate-400">→</span> {e.after ? titleCase(e.after) : '∅'}
+                        {e.before ? titleCase(e.before) : '∅'} <span className="text-stone-400">→</span> {e.after ? titleCase(e.after) : '∅'}
                       </>
                     ) : (
-                      <span className="text-slate-300">—</span>
+                      <span className="text-stone-300">—</span>
                     )}
                   </td>
-                  <td className="max-w-xs px-4 py-2.5 text-xs text-slate-600">
+                  <td className="max-w-xs px-4 py-2.5 text-xs text-stone-600">
                     {e.reason}
                     {e.metadata && (
-                      <div className="mt-0.5 font-mono text-[11px] text-slate-400">
+                      <div className="mt-0.5 font-mono text-[11px] text-stone-400">
                         {Object.entries(e.metadata)
                           .map(([k, v]) => `${k}=${v}`)
                           .join(' ')}

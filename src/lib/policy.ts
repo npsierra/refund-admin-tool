@@ -41,6 +41,18 @@ export const STATUS_LABELS: Record<RefundStatus, string> = {
   failed: 'Failed',
 }
 
+// Solid fill matching each status pill, for charts/bars.
+export const STATUS_BAR: Record<RefundStatus, string> = {
+  queued: 'bg-stone-400',
+  in_review: 'bg-sky-500',
+  pending_second_approval: 'bg-amber-400',
+  approved: 'bg-brand-400',
+  rejected: 'bg-rose-400',
+  executing: 'bg-teal-500',
+  completed: 'bg-brand-700',
+  failed: 'bg-red-500',
+}
+
 export const OPEN_STATUSES: RefundStatus[] = ['queued', 'in_review', 'pending_second_approval', 'approved', 'failed']
 
 export const canApproveAmount = (user: User, amount: number, policy: Policy) =>
@@ -50,12 +62,14 @@ export const needsSecondApproval = (amount: number, policy: Policy) => amount >=
 
 export const canExecute = (user: User) => user.role === 'admin' || user.role === 'supervisor'
 
-export const canSecondApprove = (user: User, refund: RefundRequest, policy: Policy) => {
+// Any Supervisor or Admin may countersign; the per-role limit applies to the first approval only.
+export const canCountersign = (user: User) => user.role === 'admin' || user.role === 'supervisor'
+
+export const canSecondApprove = (user: User, refund: RefundRequest, _policy: Policy) => {
   const first = refund.decisions.find((d) => d.action === 'approve')
   if (!first) return false
   if (first.by === user.id) return false
-  const amount = refund.approvedAmount ?? refund.requestedAmount
-  return canApproveAmount(user, amount, policy)
+  return canCountersign(user)
 }
 
 export const explainApprovalBlock = (user: User, amount: number, policy: Policy): string | null => {

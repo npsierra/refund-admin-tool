@@ -14,7 +14,7 @@ import type {
   RiskFlag,
   User,
 } from '../types'
-import { DEFAULT_POLICY, canApproveAmount, needsSecondApproval } from '../lib/policy'
+import { DEFAULT_POLICY, canApproveAmount, canCountersign, needsSecondApproval } from '../lib/policy'
 
 export const MERCHANTS = merchantsJson as Merchant[]
 export const USERS = usersJson as User[]
@@ -165,7 +165,7 @@ export function generateSeed(now = new Date()): SeedData {
     const items: PurchaseItem[] = []
     for (let k = 0; k < count; k++) {
       const base = pick(catalog)
-      if (!items.find((x) => x.sku === base.sku)) items.push({ ...base })
+      if (!items.find((x) => x.sku === base.sku)) items.push({ ...base, unitPrice: base.unitPrice + int(0, 99) / 100 })
     }
     const amount = Math.round(items.reduce((s, it) => s + it.qty * it.unitPrice, 0) * 100) / 100
     customer.lifetimeSpend = Math.round((customer.lifetimeSpend + amount) * 100) / 100
@@ -322,7 +322,7 @@ export function generateSeed(now = new Date()): SeedData {
         reason: refund.decisions[0].reason,
       })
       if (needsSecond && status !== 'pending_second_approval') {
-        const second = USERS.find((u) => u.id !== first.id && canApproveAmount(u, approvedAmount, DEFAULT_POLICY))
+        const second = USERS.find((u) => u.id !== first.id && canCountersign(u))
         if (second) {
           decide('approve', second, approvedAmount, 'Second approval: amount above two-person threshold')
           log({ at: t, actorId: second.id, actorName: second.name, actorRole: second.role, action: 'refund.second_approval', refundId: refund.id, merchantId: merchant.id, amount: approvedAmount, before: 'pending_second_approval', after: 'approved' })
