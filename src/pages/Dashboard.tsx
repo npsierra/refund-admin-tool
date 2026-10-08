@@ -1,6 +1,6 @@
 import { clsx } from 'clsx'
 import { Link } from 'react-router-dom'
-import { useStore } from '../store/useStore'
+import { useCurrentUser, useStore } from '../store/useStore'
 import { Card, PageHeader, Stat, StatusBadge } from '../components/ui'
 import { money, relative, titleCase, useNow } from '../lib/format'
 import { OPEN_STATUSES, STATUS_BAR, STATUS_LABELS } from '../lib/policy'
@@ -12,6 +12,7 @@ export function Dashboard() {
   const refunds = useStore((s) => s.refunds)
   const audit = useStore((s) => s.audit)
   const merchants = useStore((s) => s.merchants)
+  const me = useCurrentUser()
   const now = useNow()
 
   const open = refunds.filter((r) => OPEN_STATUSES.includes(r.status))
@@ -20,6 +21,11 @@ export function Dashboard() {
   const refundedAmount = completed.reduce((s, r) => s + (r.approvedAmount ?? r.requestedAmount), 0)
   const breached = open.filter((r) => new Date(r.slaDueAt).getTime() < now)
   const needsSecond = refunds.filter((r) => r.status === 'pending_second_approval')
+  const myCountersigns = me.role === 'analyst' ? [] : needsSecond.filter((r) => !r.decisions.some((d) => d.action === 'approve' && d.by === me.id))
+  const secondHint =
+    me.role === 'analyst'
+      ? `${needsSecond.length} awaiting 2nd approval`
+      : `${myCountersigns.length} awaiting your countersign`
   const byStage = STAGES.map((st) => ({ st, n: refunds.filter((r) => r.status === st).length }))
   const max = Math.max(...byStage.map((b) => b.n), 1)
   const recent = [...audit].reverse().slice(0, 8)
@@ -39,7 +45,7 @@ export function Dashboard() {
         <Stat label="Open cases" value={open.length} hint={`${refunds.filter((r) => r.status === 'queued').length} unassigned in queue`} />
         <Stat label="Pending amount" value={money(pendingAmount)} hint="Across all open cases" />
         <Stat label="Refunded (all time)" value={money(refundedAmount)} hint={`${completed.length} completed`} tone="success" />
-        <Stat label="SLA breaches" value={breached.length} hint={needsSecond.length ? `${needsSecond.length} awaiting 2nd approval` : 'All within SLA'} tone={breached.length ? 'danger' : undefined} />
+        <Stat label="SLA breaches" value={breached.length} hint={needsSecond.length ? secondHint : 'All within SLA'} tone={breached.length ? 'danger' : undefined} />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">

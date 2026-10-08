@@ -142,6 +142,7 @@ export type AuditAction =
   | 'refund.retried'
   | 'refund.note_added'
   | 'user.role_switched'
+  | 'policy.updated'
   | 'system.data_reset'
 
 export interface AuditEntry {
