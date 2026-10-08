@@ -1,0 +1,10 @@
+[
+  { "id": "m_northwind", "name": "Northwind Outfitters", "category": "Apparel", "country": "US", "processor": "Stripe", "refundPolicyDays": 30, "riskTier": "low" },
+  { "id": "m_lumen", "name": "Lumen Home Goods", "category": "Home & Living", "country": "US", "processor": "Adyen", "refundPolicyDays": 45, "riskTier": "low" },
+  { "id": "m_voltic", "name": "Voltic Electronics", "category": "Electronics", "country": "US", "processor": "Braintree", "refundPolicyDays": 14, "riskTier": "medium" },
+  { "id": "m_sprocket", "name": "Sprocket Cycles", "category": "Sporting Goods", "country": "CA", "processor": "Stripe", "refundPolicyDays": 30, "riskTier": "low" },
+  { "id": "m_aurelia", "name": "Aurelia Beauty Co.", "category": "Cosmetics", "country": "US", "processor": "Checkout.com", "refundPolicyDays": 60, "riskTier": "medium" },
+  { "id": "m_tidewater", "name": "Tidewater Travel", "category": "Travel", "country": "US", "processor": "Adyen", "refundPolicyDays": 7, "riskTier": "high" },
+  { "id": "m_kestrel", "name": "Kestrel Software", "category": "SaaS Subscriptions", "country": "GB", "processor": "Stripe", "refundPolicyDays": 14, "riskTier": "medium" },
+  { "id": "m_harbor", "name": "Harbor & Finch Furniture", "category": "Furniture", "country": "US", "processor": "Braintree", "refundPolicyDays": 30, "riskTier": "low" }
+]

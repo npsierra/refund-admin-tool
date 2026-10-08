@@ -1,0 +1,6 @@
+[
+  { "id": "u_priya", "name": "Priya Raman", "email": "priya.raman@acmepay.demo", "role": "analyst", "team": "Disputes & Refunds", "avatarColor": "#6366f1" },
+  { "id": "u_marcus", "name": "Marcus Oyelaran", "email": "marcus.oyelaran@acmepay.demo", "role": "analyst", "team": "Disputes & Refunds", "avatarColor": "#0ea5e9" },
+  { "id": "u_elena", "name": "Elena Varga", "email": "elena.varga@acmepay.demo", "role": "supervisor", "team": "Disputes & Refunds", "avatarColor": "#f59e0b" },
+  { "id": "u_david", "name": "David Chen", "email": "david.chen@acmepay.demo", "role": "admin", "team": "Finance Operations", "avatarColor": "#10b981" }
+]
