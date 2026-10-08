@@ -37,7 +37,12 @@ export function AuditLog() {
 
   const exportCsv = () => {
     const header = ['id', 'timestamp', 'actor', 'role', 'action', 'refund_id', 'merchant', 'amount', 'before', 'after', 'reason']
-    const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
+    const esc = (v: unknown) => {
+      const str = String(v ?? '')
+      // Neutralise spreadsheet formula injection (=, +, -, @, tab, CR).
+      const safe = /^[=+\-@\t\r]/.test(str) ? `'${str}` : str
+      return `"${safe.replace(/"/g, '""')}"`
+    }
     const lines = rows.map((e) =>
       [e.id, e.at, e.actorName, e.actorRole, e.action, e.refundId, merchants.find((m) => m.id === e.merchantId)?.name, e.amount, e.before, e.after, e.reason].map(esc).join(','),
     )

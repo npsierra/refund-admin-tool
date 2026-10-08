@@ -55,21 +55,24 @@ export interface Actions {
   addNote: (refundId: string, text: string) => void
   execute: (refundId: string) => { ok: boolean; error?: string }
   retry: (refundId: string) => { ok: boolean; error?: string }
+  resumeExecuting: () => void
 }
 
-const seed = generateSeed()
-
-const initialState = (): State => ({
-  users: USERS,
-  merchants: MERCHANTS,
-  customers: seed.customers,
-  purchases: seed.purchases,
-  refunds: seed.refunds,
-  audit: seed.audit,
-  policy: DEFAULT_POLICY,
-  currentUserId: USERS[0].id,
-  seededAt: new Date().toISOString(),
-})
+const initialState = (): State => {
+  const now = new Date()
+  const seed = generateSeed(now)
+  return {
+    users: USERS,
+    merchants: MERCHANTS,
+    customers: seed.customers,
+    purchases: seed.purchases,
+    refunds: seed.refunds,
+    audit: seed.audit,
+    policy: DEFAULT_POLICY,
+    currentUserId: USERS[0].id,
+    seededAt: now.toISOString(),
+  }
+}
 
 export const useStore = create<State & Actions>()(
   persist(
@@ -103,6 +106,41 @@ export const useStore = create<State & Actions>()(
         log({ action, refundId: refund.id, merchantId: refund.merchantId, before: refund.status, after: to, ...extra })
       }
 
+      const inFlight = new Set<string>()
+      // Simulate an async processor call. ~12% of attempts fail so the retry path is demoable.
+      const scheduleSettlement = (refundId: string) => {
+        if (inFlight.has(refundId)) return
+        inFlight.add(refundId)
+        window.setTimeout(() => {
+          inFlight.delete(refundId)
+          const current = findRefund(refundId)
+          if (!current || current.status !== 'executing' || !current.execution) return
+          const { amount, processor } = current.execution
+          const completedAt = nowIso()
+          const system = { actorId: 'system', actorName: 'System', actorRole: 'admin' as const }
+          if (Math.random() < 0.12) {
+            const failureReason = 'Processor declined: issuer unavailable (try again)'
+            updateRefund(refundId, (x) => ({
+              ...x,
+              status: 'failed',
+              execution: { ...x.execution!, status: 'failed', completedAt, failureReason },
+            }))
+            log({ action: 'refund.execution_failed', refundId, merchantId: current.merchantId, amount, before: 'executing', after: 'failed', reason: failureReason, ...system })
+          } else {
+            const processorRef = `${processor.slice(0, 2).toLowerCase()}_re_${Math.random().toString(36).slice(2, 12)}`
+            updateRefund(refundId, (x) => ({
+              ...x,
+              status: 'completed',
+              execution: { ...x.execution!, status: 'settled', completedAt, processorRef },
+            }))
+            set((s) => ({
+              purchases: s.purchases.map((p) => (p.id === current.purchaseId ? { ...p, refundedAmount: Math.round((p.refundedAmount + amount) * 100) / 100 } : p)),
+            }))
+            log({ action: 'refund.execution_settled', refundId, merchantId: current.merchantId, amount, before: 'executing', after: 'completed', metadata: { processorRef }, ...system })
+          }
+        }, 1800 + Math.random() * 1500)
+      }
+
       return {
         ...initialState(),
 
@@ -124,6 +162,7 @@ export const useStore = create<State & Actions>()(
           const fresh = initialState()
           set({ ...fresh, currentUserId: u.id })
           log({ action: 'system.data_reset', reason: 'Demo data reset to seed' })
+          get().resumeExecuting()
         },
 
         createRefund: ({ purchaseId, amount, trigger, reason, priority }) => {
@@ -138,8 +177,8 @@ export const useStore = create<State & Actions>()(
           if (amount >= 1000) flags.push('high_value')
           if (amount > purchase.amount - purchase.refundedAmount) flags.push('amount_mismatch')
           if (trigger === 'chargeback') flags.push('chargeback_open')
-          const seq = 1042 + s.refunds.length + Math.floor(Math.random() * 900)
-          const id = `RF-${seq}`
+          const maxSeq = s.refunds.reduce((m, r) => Math.max(m, Number(r.id.replace(/\D/g, '')) || 0), 1041)
+          const id = `RF-${maxSeq + 1}`
           const createdAt = nowIso()
           const refund: RefundRequest = {
             id,
@@ -239,9 +278,11 @@ export const useStore = create<State & Actions>()(
           const r = findRefund(refundId)
           const u = get().currentUser()
           if (!r) return
+          const highSla = new Date(new Date(r.createdAt).getTime() + get().policy.slaHours.high * 3600000).toISOString()
           updateRefund(refundId, (x) => ({
             ...x,
             priority: 'high',
+            slaDueAt: x.priority === 'high' ? x.slaDueAt : highSla,
             status: x.status === 'queued' ? 'in_review' : x.status,
             decisions: [...x.decisions, { action: 'escalate', by: u.id, byName: u.name, role: u.role, at: nowIso(), amount: x.requestedAmount, reason }],
           }))
@@ -274,35 +315,13 @@ export const useStore = create<State & Actions>()(
             execution: { startedAt, processor: merchant.processor, amount, status: 'processing' },
           }))
           transition(r, 'executing', 'refund.execution_started', { amount, metadata: { processor: merchant.processor } })
-
-          // Simulate an async processor call. ~12% of attempts fail so the retry path is demoable.
-          window.setTimeout(() => {
-            const current = findRefund(refundId)
-            if (!current || current.status !== 'executing') return
-            const failed = Math.random() < 0.12
-            const completedAt = nowIso()
-            if (failed) {
-              const failureReason = 'Processor declined: issuer unavailable (try again)'
-              updateRefund(refundId, (x) => ({
-                ...x,
-                status: 'failed',
-                execution: { ...x.execution!, status: 'failed', completedAt, failureReason },
-              }))
-              log({ action: 'refund.execution_failed', refundId, merchantId: r.merchantId, amount, before: 'executing', after: 'failed', reason: failureReason, actorId: 'system', actorName: 'System', actorRole: 'admin' })
-            } else {
-              const processorRef = `${merchant.processor.slice(0, 2).toLowerCase()}_re_${Math.random().toString(36).slice(2, 12)}`
-              updateRefund(refundId, (x) => ({
-                ...x,
-                status: 'completed',
-                execution: { ...x.execution!, status: 'settled', completedAt, processorRef },
-              }))
-              set((s) => ({
-                purchases: s.purchases.map((p) => (p.id === r.purchaseId ? { ...p, refundedAmount: Math.round((p.refundedAmount + amount) * 100) / 100 } : p)),
-              }))
-              log({ action: 'refund.execution_settled', refundId, merchantId: r.merchantId, amount, before: 'executing', after: 'completed', metadata: { processorRef }, actorId: 'system', actorName: 'System', actorRole: 'admin' })
-            }
-          }, 1800 + Math.random() * 1500)
+          scheduleSettlement(refundId)
           return { ok: true }
+        },
+
+        resumeExecuting: () => {
+          // Timers die with the page; re-arm the simulated processor for any case still "executing".
+          get().refunds.filter((r) => r.status === 'executing').forEach((r) => scheduleSettlement(r.id))
         },
 
         retry: (refundId) => {
@@ -326,6 +345,7 @@ export const useStore = create<State & Actions>()(
         currentUserId: s.currentUserId,
         seededAt: s.seededAt,
       }),
+      onRehydrateStorage: () => (state) => state?.resumeExecuting(),
       merge: (persisted, current) => {
         const p = persisted as Partial<State>
         // Approval limits persist Infinity as null; restore it.
