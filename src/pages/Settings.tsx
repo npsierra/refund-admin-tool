@@ -89,7 +89,7 @@ export function SettingsPage() {
             </tbody>
           </table>
           <div className="mt-4 rounded-lg bg-stone-50 p-3 text-xs text-stone-600">
-            <span className="font-medium text-stone-800">Two-person rule:</span> refunds of {money(policy.twoPersonThreshold)} or more require a second approval from a different user with sufficient limit before execution.
+            <span className="font-medium text-stone-800">Two-person rule:</span> refunds of {money(policy.twoPersonThreshold)} or more require a second approval from a different Supervisor or Admin before execution.
           </div>
         </Card>
 
