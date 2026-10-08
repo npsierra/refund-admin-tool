@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Check, RotateCcw } from 'lucide-react'
 import { useCurrentUser, useStore } from '../store/useStore'
-import { Avatar, Button, Card, Field, PageHeader, RoleBadge } from '../components/ui'
+import { Avatar, Button, Card, Field, Input, Label, PageHeader, RoleBadge } from '../components/ui'
 import { ROLES, ROLE_DESCRIPTIONS, ROLE_LABELS } from '../lib/policy'
 import { fullDateTime, money } from '../lib/format'
+import type { Policy } from '../lib/policy'
 
 export function SettingsPage() {
   const users = useStore((s) => s.users)
@@ -11,6 +12,7 @@ export function SettingsPage() {
   const seededAt = useStore((s) => s.seededAt)
   const switchUser = useStore((s) => s.switchUser)
   const resetData = useStore((s) => s.resetData)
+  const updatePolicy = useStore((s) => s.updatePolicy)
   const audit = useStore((s) => s.audit)
   const me = useCurrentUser()
   const [confirmReset, setConfirmReset] = useState(false)
@@ -91,6 +93,7 @@ export function SettingsPage() {
           <div className="mt-4 rounded-lg bg-stone-50 p-3 text-xs text-stone-600">
             <span className="font-medium text-stone-800">Two-person rule:</span> refunds of {money(policy.twoPersonThreshold)} or more require a second approval from a different Supervisor or Admin before execution.
           </div>
+          <PolicyEditor key={`${policy.approvalLimits.analyst}-${policy.approvalLimits.supervisor}-${policy.twoPersonThreshold}`} isAdmin={me.role === 'admin'} policy={policy} onSave={updatePolicy} />
         </Card>
 
         <Card title="Demo data">
@@ -119,6 +122,65 @@ export function SettingsPage() {
           )}
         </Card>
       </div>
+    </div>
+  )
+}
+
+function PolicyEditor({
+  isAdmin,
+  policy,
+  onSave,
+}: {
+  isAdmin: boolean
+  policy: Policy
+  onSave: (p: { analyst: number; supervisor: number; twoPersonThreshold: number }) => { ok: boolean; error?: string }
+}) {
+  const [analyst, setAnalyst] = useState(String(policy.approvalLimits.analyst))
+  const [supervisor, setSupervisor] = useState(String(policy.approvalLimits.supervisor))
+  const [threshold, setThreshold] = useState(String(policy.twoPersonThreshold))
+  const [error, setError] = useState<string | null>(null)
+  const dirty =
+    Number(analyst) !== policy.approvalLimits.analyst || Number(supervisor) !== policy.approvalLimits.supervisor || Number(threshold) !== policy.twoPersonThreshold
+
+  if (!isAdmin) {
+    return <p className="mt-3 text-xs text-stone-400">Switch to an Admin to change these limits. Every change is recorded in the audit log.</p>
+  }
+
+  return (
+    <div className="mt-4 border-t border-stone-100 pt-4">
+      <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-500">Edit policy (Admin)</div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
+        <div>
+          <Label>Analyst limit ($)</Label>
+          <Input type="number" min={0} step="50" value={analyst} onChange={(e) => setAnalyst(e.target.value)} />
+        </div>
+        <div>
+          <Label>Supervisor limit ($)</Label>
+          <Input type="number" min={0} step="50" value={supervisor} onChange={(e) => setSupervisor(e.target.value)} />
+        </div>
+        <div>
+          <Label>Two-person threshold ($)</Label>
+          <Input type="number" min={0} step="50" value={threshold} onChange={(e) => setThreshold(e.target.value)} />
+        </div>
+        <div className="flex items-end">
+          <Button
+            className="w-full"
+            disabled={!dirty}
+            onClick={() => {
+              if ([analyst, supervisor, threshold].some((v) => v.trim() === '')) {
+                setError('All three amounts are required')
+                return
+              }
+              const res = onSave({ analyst: Number(analyst), supervisor: Number(supervisor), twoPersonThreshold: Number(threshold) })
+              setError(res.ok ? null : (res.error ?? 'Could not save'))
+            }}
+          >
+            <Check size={16} /> Save policy
+          </Button>
+        </div>
+      </div>
+      {error && <p className="mt-2 text-xs text-rose-600">{error}</p>}
+      <p className="mt-2 text-xs text-stone-400">Takes effect immediately for every open case. Changes are written to the audit log as who changed what, from → to.</p>
     </div>
   )
 }
