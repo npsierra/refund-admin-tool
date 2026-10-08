@@ -26,13 +26,13 @@ export function Merchants() {
               <button
                 key={x.id}
                 onClick={() => setSelected(x.id)}
-                className={'w-full rounded-xl border p-4 text-left transition ' + (x.id === selected ? 'border-indigo-300 bg-indigo-50' : 'border-slate-200 bg-white hover:bg-slate-50')}
+                className={'w-full rounded-xl border p-4 text-left transition ' + (x.id === selected ? 'border-brand-300 bg-brand-50' : 'border-stone-200 bg-white hover:bg-stone-50')}
               >
                 <div className="flex items-center justify-between">
-                  <div className="font-medium text-slate-900">{x.name}</div>
+                  <div className="font-medium text-stone-900">{x.name}</div>
                   <Badge tone={x.riskTier === 'high' ? 'danger' : x.riskTier === 'medium' ? 'warn' : 'success'}>{x.riskTier} risk</Badge>
                 </div>
-                <div className="mt-1 text-xs text-slate-500">
+                <div className="mt-1 text-xs text-stone-500">
                   {x.category} · {x.processor} · {count} refund cases · {money(gross)} GMV
                 </div>
               </button>
@@ -44,34 +44,34 @@ export function Merchants() {
             <Card title={m.name}>
               <dl className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
                 <div>
-                  <dt className="text-xs text-slate-500">Category</dt>
+                  <dt className="text-xs text-stone-500">Category</dt>
                   <dd className="font-medium">{m.category}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-slate-500">Country</dt>
+                  <dt className="text-xs text-stone-500">Country</dt>
                   <dd className="font-medium">{m.country}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-slate-500">Processor</dt>
+                  <dt className="text-xs text-stone-500">Processor</dt>
                   <dd className="font-medium">{m.processor}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-slate-500">Refund window</dt>
+                  <dt className="text-xs text-stone-500">Refund window</dt>
                   <dd className="font-medium">{m.refundPolicyDays} days</dd>
                 </div>
               </dl>
             </Card>
             <Card title={`Refund cases (${mRefunds.length})`}>
               {mRefunds.length === 0 ? (
-                <p className="text-sm text-slate-500">No refund cases for this merchant.</p>
+                <p className="text-sm text-stone-500">No refund cases for this merchant.</p>
               ) : (
-                <ul className="divide-y divide-slate-100">
+                <ul className="divide-y divide-stone-100">
                   {mRefunds.map((r) => (
                     <li key={r.id} className="flex items-center justify-between py-2 text-sm">
-                      <Link to={`/refunds/${r.id}`} className="font-medium text-indigo-600 hover:underline">
+                      <Link to={`/refunds/${r.id}`} className="font-medium text-brand-600 hover:underline">
                         {r.id}
                       </Link>
-                      <span className="text-xs text-slate-500">{customers.find((c) => c.id === r.customerId)?.name}</span>
+                      <span className="text-xs text-stone-500">{customers.find((c) => c.id === r.customerId)?.name}</span>
                       <span className="tabular-nums">{money(r.approvedAmount ?? r.requestedAmount)}</span>
                       <StatusBadge status={r.status} />
                     </li>
@@ -82,7 +82,7 @@ export function Merchants() {
             <Card title={`Purchases (${mPurchases.length})`}>
               <div className="max-h-96 overflow-y-auto">
                 <table className="w-full text-sm">
-                  <thead className="text-left text-xs text-slate-500">
+                  <thead className="text-left text-xs text-stone-500">
                     <tr>
                       <th className="pb-2">Order</th>
                       <th className="pb-2">Customer</th>
@@ -91,13 +91,13 @@ export function Merchants() {
                       <th className="pb-2 text-right">Amount</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-stone-100">
                     {mPurchases.map((p) => (
                       <tr key={p.id}>
-                        <td className="py-2 font-mono text-xs text-slate-600">{p.id}</td>
+                        <td className="py-2 font-mono text-xs text-stone-600">{p.id}</td>
                         <td className="py-2">{customers.find((c) => c.id === p.customerId)?.name}</td>
-                        <td className="py-2 text-xs text-slate-500">{shortDate(p.purchasedAt)}</td>
-                        <td className="py-2 text-xs text-slate-600">{p.items.map((i) => `${i.qty}× ${i.name}`).join(', ')}</td>
+                        <td className="py-2 text-xs text-stone-500">{shortDate(p.purchasedAt)}</td>
+                        <td className="py-2 text-xs text-stone-600">{p.items.map((i) => `${i.qty}× ${i.name}`).join(', ')}</td>
                         <td className="py-2 text-right tabular-nums">
                           {money(p.amount)}
                           {p.refundedAmount > 0 && <div className="text-xs text-emerald-600">-{money(p.refundedAmount)}</div>}
