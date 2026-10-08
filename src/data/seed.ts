@@ -306,7 +306,9 @@ export function generateSeed(now = new Date()): SeedData {
       refund.approvedAmount = approvedAmount
       const needsSecond = needsSecondApproval(approvedAmount, DEFAULT_POLICY)
       if (needsSecond && !refund.riskFlags.includes('high_value')) refund.riskFlags.push('high_value')
-      const first = [agent, supervisor, finance].find((u) => canApproveAmount(u, approvedAmount, DEFAULT_POLICY))!
+      const eligibleFirst = [agent, supervisor, finance].filter((u) => canApproveAmount(u, approvedAmount, DEFAULT_POLICY))
+      // Prefer the lowest role that can sign; sometimes let a senior sign so pending cases vary in who must countersign.
+      const first = rand() < 0.35 ? pick(eligibleFirst) : eligibleFirst[0]
       decide('approve', first, approvedAmount, approvedAmount < requestedAmount ? 'Partial approval: restocking fee applied' : 'Within policy; evidence verified')
       log({
         at: t,
