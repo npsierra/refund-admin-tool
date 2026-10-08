@@ -52,7 +52,7 @@ export function Dashboard() {
         <Card title="Pipeline by stage" className="lg:col-span-2">
           <div className="space-y-3">
             {byStage.map(({ st, n }) => (
-              <Link to={`/queue?status=${st}`} key={st} className="group flex items-center gap-3">
+              <Link to={`/queue?status=${st}&mine=0`} key={st} className="group flex items-center gap-3">
                 <div className="w-36 text-xs font-medium text-stone-600 group-hover:text-brand-700">{STATUS_LABELS[st]}</div>
                 <div className="h-5 flex-1 overflow-hidden rounded bg-stone-100">
                   <div className={clsx('h-full rounded transition-all', STATUS_BAR[st])} style={{ width: `${(n / max) * 100}%` }} />

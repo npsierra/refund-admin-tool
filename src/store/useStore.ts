@@ -162,10 +162,14 @@ export const useStore = create<State & Actions>()(
           log({ action: 'user.role_switched', before: `${from.name} (${from.role})`, after: `${to.name} (${to.role})`, actorId: to.id, actorName: to.name, actorRole: to.role })
         },
 
-        updatePolicy: ({ analyst, supervisor, twoPersonThreshold }) => {
+        updatePolicy: (input) => {
           const u = get().currentUser()
           if (u.role !== 'admin') return { ok: false, error: 'Only Admins can change policy' }
-          if (![analyst, supervisor, twoPersonThreshold].every((n) => Number.isFinite(n) && n >= 0)) return { ok: false, error: 'Enter valid amounts' }
+          if (!Object.values(input).every((n) => Number.isFinite(n) && n >= 0)) return { ok: false, error: 'Enter valid amounts' }
+          const toCents = (n: number) => Math.round(n * 100) / 100
+          const analyst = toCents(input.analyst)
+          const supervisor = toCents(input.supervisor)
+          const twoPersonThreshold = toCents(input.twoPersonThreshold)
           if (analyst > supervisor) return { ok: false, error: 'Analyst limit cannot exceed Supervisor limit' }
           const prev = get().policy
           const next: Policy = { ...prev, approvalLimits: { ...prev.approvalLimits, analyst, supervisor }, twoPersonThreshold }
