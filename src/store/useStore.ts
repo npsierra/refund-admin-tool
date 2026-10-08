@@ -107,11 +107,15 @@ export const useStore = create<State & Actions>()(
       }
 
       const inFlight = new Set<string>()
+      // Bumped on reset so timers armed against the previous dataset become no-ops.
+      let generation = 0
       // Simulate an async processor call. ~12% of attempts fail so the retry path is demoable.
       const scheduleSettlement = (refundId: string) => {
         if (inFlight.has(refundId)) return
         inFlight.add(refundId)
+        const armedFor = generation
         window.setTimeout(() => {
+          if (armedFor !== generation) return
           inFlight.delete(refundId)
           const current = findRefund(refundId)
           if (!current || current.status !== 'executing' || !current.execution) return
@@ -160,6 +164,8 @@ export const useStore = create<State & Actions>()(
         resetData: () => {
           const u = get().currentUser()
           const fresh = initialState()
+          generation += 1
+          inFlight.clear()
           set({ ...fresh, currentUserId: u.id })
           log({ action: 'system.data_reset', reason: 'Demo data reset to seed' })
           get().resumeExecuting()

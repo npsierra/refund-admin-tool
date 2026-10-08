@@ -1,8 +1,9 @@
+import { clsx } from 'clsx'
 import { Link } from 'react-router-dom'
 import { useStore } from '../store/useStore'
 import { Card, PageHeader, Stat, StatusBadge } from '../components/ui'
 import { money, relative, titleCase, useNow } from '../lib/format'
-import { OPEN_STATUSES, STATUS_LABELS } from '../lib/policy'
+import { OPEN_STATUSES, STATUS_BAR, STATUS_LABELS } from '../lib/policy'
 import type { RefundStatus } from '../types'
 
 const STAGES: RefundStatus[] = ['queued', 'in_review', 'pending_second_approval', 'approved', 'executing', 'completed', 'rejected', 'failed']
@@ -46,25 +47,25 @@ export function Dashboard() {
           <div className="space-y-3">
             {byStage.map(({ st, n }) => (
               <Link to={`/queue?status=${st}`} key={st} className="group flex items-center gap-3">
-                <div className="w-36 text-xs font-medium text-slate-600 group-hover:text-indigo-700">{STATUS_LABELS[st]}</div>
-                <div className="h-5 flex-1 overflow-hidden rounded bg-slate-100">
-                  <div className="h-full rounded bg-indigo-500 transition-all" style={{ width: `${(n / max) * 100}%`, opacity: 0.35 + (n / max) * 0.65 }} />
+                <div className="w-36 text-xs font-medium text-stone-600 group-hover:text-brand-700">{STATUS_LABELS[st]}</div>
+                <div className="h-5 flex-1 overflow-hidden rounded bg-stone-100">
+                  <div className={clsx('h-full rounded transition-all', STATUS_BAR[st])} style={{ width: `${(n / max) * 100}%` }} />
                 </div>
-                <div className="w-6 text-right text-xs font-semibold text-slate-700">{n}</div>
+                <div className="w-6 text-right text-xs font-semibold text-stone-700">{n}</div>
               </Link>
             ))}
           </div>
         </Card>
 
         <Card title="Top merchants by refunded $">
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-stone-100">
             {byMerchant.map(({ m, count, amount }) => (
               <li key={m.id} className="flex items-center justify-between py-2 text-sm">
                 <div>
-                  <div className="font-medium text-slate-800">{m.name}</div>
-                  <div className="text-xs text-slate-500">{count} cases</div>
+                  <div className="font-medium text-stone-800">{m.name}</div>
+                  <div className="text-xs text-stone-500">{count} cases</div>
                 </div>
-                <div className="font-medium text-slate-900">{money(amount)}</div>
+                <div className="font-medium text-stone-900">{money(amount)}</div>
               </li>
             ))}
           </ul>
@@ -74,15 +75,15 @@ export function Dashboard() {
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card title="Needs attention" className="lg:col-span-1">
           {breached.length === 0 && needsSecond.length === 0 ? (
-            <p className="text-sm text-slate-500">Nothing urgent.</p>
+            <p className="text-sm text-stone-500">Nothing urgent.</p>
           ) : (
             <ul className="space-y-2">
               {[...needsSecond, ...breached.filter((r) => r.status !== 'pending_second_approval')].slice(0, 6).map((r) => (
                 <li key={r.id}>
-                  <Link to={`/refunds/${r.id}`} className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-sm hover:bg-slate-50">
+                  <Link to={`/refunds/${r.id}`} className="flex items-center justify-between rounded-lg border border-stone-200 px-3 py-2 text-sm hover:bg-stone-50">
                     <div>
-                      <div className="font-medium text-indigo-700">{r.id}</div>
-                      <div className="text-xs text-slate-500">
+                      <div className="font-medium text-brand-700">{r.id}</div>
+                      <div className="text-xs text-stone-500">
                         {money(r.approvedAmount ?? r.requestedAmount)} · due {relative(r.slaDueAt)}
                       </div>
                     </div>
@@ -94,21 +95,21 @@ export function Dashboard() {
           )}
         </Card>
 
-        <Card title="Recent activity" className="lg:col-span-2" action={<Link to="/audit" className="text-xs font-medium text-indigo-600 hover:underline">View audit log</Link>}>
-          <ul className="divide-y divide-slate-100">
+        <Card title="Recent activity" className="lg:col-span-2" action={<Link to="/audit" className="text-xs font-medium text-brand-600 hover:underline">View audit log</Link>}>
+          <ul className="divide-y divide-stone-100">
             {recent.map((e) => (
               <li key={e.id} className="flex items-center gap-3 py-2 text-sm">
-                <span className="w-16 shrink-0 text-xs text-slate-400">{relative(e.at)}</span>
+                <span className="w-16 shrink-0 text-xs text-stone-400">{relative(e.at)}</span>
                 <span className="flex-1 truncate">
-                  <span className="font-medium text-slate-800">{e.actorName}</span>{' '}
-                  <span className="text-slate-500">{titleCase(e.action.split('.')[1] ?? e.action).toLowerCase()}</span>{' '}
+                  <span className="font-medium text-stone-800">{e.actorName}</span>{' '}
+                  <span className="text-stone-500">{titleCase(e.action.split('.')[1] ?? e.action).toLowerCase()}</span>{' '}
                   {e.refundId && (
-                    <Link to={`/refunds/${e.refundId}`} className="font-medium text-indigo-600 hover:underline">
+                    <Link to={`/refunds/${e.refundId}`} className="font-medium text-brand-600 hover:underline">
                       {e.refundId}
                     </Link>
                   )}
                 </span>
-                {e.amount != null && e.amount > 0 && <span className="text-xs font-medium text-slate-700">{money(e.amount)}</span>}
+                {e.amount != null && e.amount > 0 && <span className="text-xs font-medium text-stone-700">{money(e.amount)}</span>}
               </li>
             ))}
           </ul>
